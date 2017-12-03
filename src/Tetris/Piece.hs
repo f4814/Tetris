@@ -2,6 +2,9 @@ module Tetris.Piece
     ( Piece(..)
     , initial
     , color
+    , snd3
+    , fst3
+    , thr3
     ) where
 
 import System.Random
@@ -23,38 +26,45 @@ color x = case x of
               Empty -> Black
 
 
-initial :: Piece -> (Matrix Color, [(Int, Int)])
+initial :: Piece -> (Matrix Color, [(Int, Int)], (Float,Float))
 initial x = case x of
                 I -> (fromLists [[Black,Black,Black,Black],
                                 [Red  ,Red  ,Red  ,Red  ],
                                 [Black,Black,Black,Black],
                                 [Black,Black,Black,Black]],
-                                [(2,1), (2,2), (2,3), (2,4)])
+                                [(2,1), (2,2), (2,3), (2,4)],
+                                (2.5,2.5))
                 J -> (fromLists [[Blue,Black,Black],
                                 [Blue,Blue,Blue],
                                 [Black,Black,Black]],
-                                [(1,1),(2,1),(2,2),(2,3)])
+                                [(1,1),(2,1),(2,2),(2,3)],
+                                (2,2))
                 L -> (fromLists [[Black,Black,Orange],
                                 [Orange,Orange,Orange],
                                 [Black,Black,Black]],
-                                [(1,3),(2,1),(2,2),(2,3)])
+                                [(1,3),(2,1),(2,2),(2,3)],
+                                (2,2))
                 O -> (fromLists [[Black,Yellow,Yellow,Black],
                                 [Black,Yellow,Yellow,Black],
                                 [Black,Black,Black,Black]],
-                                [(1,2),(1,3),(2,2),(3,2)])
+                                [(1,2),(1,3),(2,2),(3,2)],
+                                (2.5,2.5))
                 S -> (fromLists [[Black,Magenta,Magenta],
                                 [Magenta,Magenta,Black],
                                 [Black,Black,Black]],
-                                [(1,2),(1,3),(2,1),(2,2)])
+                                [(1,2),(1,3),(2,1),(2,2)],
+                                (2,2))
                 T -> (fromLists [[Black,Cyan,Black],
                                 [Cyan,Cyan,Cyan],
                                 [Black,Black,Black]],
-                                [(1,2),(2,1),(2,2),(2,3)])
+                                [(1,2),(2,1),(2,2),(2,3)],
+                                (2,2))
                 Z -> (fromLists [[Green,Green,Black],
                                 [Black,Green,Green],
                                 [Black,Black,Black]],
-                                [(1,1),(1,2),(2,2),(2,3)])
-                Empty -> (fromLists [[Black]], [(-1,-1)])
+                                [(1,1),(1,2),(2,2),(2,3)],
+                                (2,2))
+                Empty -> (fromLists [[Black]], [(-1,-1)], (-1,-1))
 
 instance Random Piece where
     randomR (lo,hi) g = -- TODO: randomR completely broken
@@ -69,3 +79,12 @@ instance Random Piece where
         where rnd = next g
 
     random = randomR (I,Z)
+
+fst3 :: (a, b, c) -> a
+fst3 (x,_,_) = x
+
+snd3 :: (a, b, c) -> b
+snd3 (_,y,_) = y
+
+thr3 :: (a, b, c) -> c
+thr3 (_,_,z) = z

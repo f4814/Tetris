@@ -14,10 +14,12 @@ library
                      , Tetris.Field
                      , Tetris.Color
                      , Tetris.Piece
+                     , UI
   build-depends:       base >= 4.7 && < 5
                      , matrix
                      , random
-  ghc-options:         -threaded -Wall
+                     , Stream
+  ghc-options:         -Wall
   default-language:    Haskell2010
 
 executable tetris-exe

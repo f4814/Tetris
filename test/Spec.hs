@@ -2,6 +2,7 @@ import Test.QuickCheck
 import Tetris.Field
 import Tetris.Color
 import Tetris.Piece
+import UI
 import Tetris
 
 instance Arbitrary Field where
@@ -26,7 +27,7 @@ instance Arbitrary Field where
                                                               \ this should not happen"
 
 setFieldPoints :: Integer -> Field -> Field
-setFieldPoints p f = Field (fieldMatrix f) (fieldPieceType f) (fieldPieceCoordinates f) p
+setFieldPoints p f = Field (fieldMatrix f) (fieldPieceType f) (fieldPieceCoordinates f) (fieldPieceCenterPoint f) p
 
 
 reversableActionProp :: (Field -> Either (Field, Fail) Field)
@@ -41,14 +42,25 @@ reversableActionProp f f' field = case test of
                     f2 <- f' field
                     return ((f f2) == (f' f1))
 
+testRotation :: (Field -> Either (Field, Fail) Field) -> Field -> Either (Field, Fail) Field
+testRotation func field = do
+    w <- func field
+    x <- func w
+    y <- func x
+    z <- func y
+    return z
+
+
 main :: IO ()
 main = do
     putStrLn ""
-    putStr "Up / Down shifting: "
-    quickCheck (reversableActionProp shiftPieceUp shiftPieceDown)
+    putStrLn logo
 
-    putStr "Left / Right shifting: "
-    quickCheck (reversableActionProp shiftPieceLeft shiftPieceRight)
+    putStr "Up / Down shifting:     "
+    quickCheckWith stdArgs { maxSuccess = 500 } (reversableActionProp shiftPieceUp shiftPieceDown)
 
-    putStr "Diagonal shifting: "
-    quickCheck (reversableActionProp (shiftPiece (+1) (+1)) (shiftPiece (subtract 1) (subtract 1)))
+    putStr "Left / Right shifting:  "
+    quickCheckWith stdArgs { maxSuccess = 500 } (reversableActionProp shiftPieceLeft shiftPieceRight)
+
+    putStr "4x Rotation:            "
+    quickCheckWith stdArgs { maxSuccess = 500 } (reversableActionProp (testRotation rotatePieceCCW) (testRotation rotatePieceCCW))

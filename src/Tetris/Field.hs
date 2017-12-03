@@ -13,16 +13,16 @@ data Fail = RotationImpossible
           | ShiftImpossible
           | GameLost
           | Nothing
-          deriving (Eq)
+          deriving (Eq, Show)
 
 data Field = Field {
       fieldMatrix           :: Matrix Color
     , fieldPieceType        :: Piece
     , fieldPieceCoordinates :: [(Int, Int)]
+    , fieldPieceCenterPoint :: (Float, Float)
     , fieldPoints           :: Integer
-    } deriving (Eq)
+    } deriving (Eq, Show)
 
 {-| Create a empty (all black) Field with 4 additional rows (b/c SRS)|-}
 createField :: Int -> Int -> Field
-createField x y = Field (matrix (x+4) y (\_ -> Black)) Empty [(-1,-1)] 0
-
+createField x y = Field (matrix (x+4) y (\_ -> Black)) Empty [(-1,-1)] (-1,-1) 0
