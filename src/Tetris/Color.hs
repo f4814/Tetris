@@ -1,5 +1,5 @@
 module Tetris.Color
-    (Color(..)
+    ( Color(..)
     ) where
 
 data Color = Red | Blue | Orange | Yellow | Magenta | Cyan | Green | Black

@@ -1,6 +1,7 @@
-module UI
+module Tetris.UI.Logo
     ( logo
-    )where
+    ) where
+
 
 logo :: String
 logo = " \
@@ -27,6 +28,4 @@ logo = " \
 \                             \\/____/                                  \\|___|                  \\/____/                 \\/____/         \n\
 \                                                                                                                                      \n\
 \ "
-
-
 

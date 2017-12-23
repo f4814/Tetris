@@ -1,19 +1,23 @@
 module Tetris
-    ( newPiece
+    ( checkLines
+    , dropPiece
+    , isLost
+    , newPiece
     , placePiece
+    , rotatePieceCCW
     , shiftPiece
     , shiftPieceDown
     , shiftPieceUp
     , shiftPieceRight
     , shiftPieceLeft
-    , rotatePieceCCW
-    )where
+    ) where
 
-import Data.Matrix
-import System.Random
-import Tetris.Piece
-import Tetris.Color
-import Tetris.Field
+import           Data.Matrix
+import qualified Data.Stream as S
+import           System.Random
+import           Tetris.Piece
+import           Tetris.Color
+import           Tetris.Field
 
 {-| Place a new Piece on the field |-}
 newPiece :: Field -> IO (Either (Field, Fail) Field)
@@ -22,12 +26,11 @@ newPiece f = do
     return (placePiece p f)
 
 {-| place a piece on the field. Only for testing purposes |-}
--- TODO: Field center point wrong
 placePiece :: Piece -> Field -> Either (Field, Fail) Field
 placePiece p f =
     if isLost f
         then Left  $ (f, GameLost)
-        else Right $ Field (top <-> bottom) p (snd3 i) (thr3 i) (fieldPoints f)
+        else Right $ Field (top <-> bottom) (S.repeat p) (snd3 i) (thr3 i) (fieldPoints f)
             where
                 i = initial p
                 old = fieldMatrix f
@@ -44,7 +47,7 @@ isLost f = any (/= Black) row
 -- TODO: Check matrix length
 shiftPiece :: (Int -> Int) -> (Int -> Int) -> Field -> Either (Field, Fail) Field
 shiftPiece rf cf f = if any (==True) $ map check l
-                         then Left (Field (withoutPiece l m) Empty [(0,0)] center s, ShiftImpossible)
+                         then Left (Field (withoutPiece l m) p [(0,0)] center s, ShiftImpossible)
                          else Right $ Field (modify m l)
                                             p
                                             (map (\(r,c) -> ((rf r), (cf c))) l)
@@ -58,7 +61,7 @@ shiftPiece rf cf f = if any (==True) $ map check l
                 center = fieldPieceCenterPoint f -- Center
                 check (r,c) = getElem (rf r) (cf c) (withoutPiece l m) /= Black -- Is shift possible
                 modify mat [] = mat -- Move Piece
-                modify mat ((r,c):xs) = modify (setElem (color p) (rf r,cf c) . withoutPiece l $ mat) xs
+                modify mat ((r,c):xs) = modify (setElem (color . S.head $ p) (rf r,cf c) . withoutPiece l $ mat) xs
 
 {-| Integer functions on Floats. Needed for the Center Point |-}
 float :: (Int -> Int) -> Float -> Float
@@ -93,7 +96,11 @@ shiftPieceUp = shiftPiece (+1) id
 
 {-| Drop Piece to bottom |-}
 dropPiece :: Field -> Either (Field, Fail) Field
-dropPiece = undefined
+dropPiece = Right
+
+{-| Check for full lines |-}
+checkLines :: Field -> Field
+checkLines = id
 
 -- r2 = (c1 + pr - pc)
 -- c2 = (pr + pc - r1)
@@ -101,7 +108,7 @@ dropPiece = undefined
 rotatePieceCCW :: Field -> Either (Field, Fail) Field
 rotatePieceCCW f = if any (check . toInt . newCord) l
                        then Left $ (Field m p l c (fieldPoints f), RotationImpossible)
-                       else Right $ Field (set (color p) coordinates w)
+                       else Right $ Field (set (color . S.head $ p) coordinates w)
                                           p coordinates c (fieldPoints f)
     where m = fieldMatrix f -- Matrix
           p = fieldPieceType f -- Piece

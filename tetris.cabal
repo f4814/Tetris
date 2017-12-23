@@ -14,20 +14,24 @@ library
                      , Tetris.Field
                      , Tetris.Color
                      , Tetris.Piece
-                     , UI
+                     , Tetris.UI
+                     , Tetris.UI.Logo
   build-depends:       base >= 4.7 && < 5
                      , matrix
                      , random
                      , Stream
+                     , hscurses
   ghc-options:         -Wall
   default-language:    Haskell2010
 
-executable tetris-exe
+executable tetris
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -with-rtsopts=-N -Wall
   build-depends:       base
                      , tetris
+                     , hscurses
+                     , monad-loops
   default-language:    Haskell2010
 
 test-suite tetris-test

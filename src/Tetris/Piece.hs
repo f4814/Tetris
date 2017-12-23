@@ -67,7 +67,7 @@ initial x = case x of
                 Empty -> (fromLists [[Black]], [(-1,-1)], (-1,-1))
 
 instance Random Piece where
-    randomR (lo,hi) g = -- TODO: randomR completely broken
+    randomR (_,_) g = -- TODO: randomR completely broken
         case (fst rnd) `rem` 7 of
             0 -> (I, snd rnd)
             1 -> (J, snd rnd)
