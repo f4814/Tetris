@@ -11,19 +11,18 @@ import System.Random
 import Data.Matrix
 import Tetris.Color
 
-data Piece = I | J | L | O | S | T | Z | Empty
+data Piece = I | J | L | O | S | T | Z
     deriving (Show, Eq) -- TODO: Delete Show
 
 color :: Piece -> Color
 color x = case x of
               I -> Red
               J -> Blue
-              L -> Orange
+              L -> White
               O -> Yellow
               S -> Magenta
               T -> Cyan
               Z -> Green
-              Empty -> Black
 
 
 initial :: Piece -> (Matrix Color, [(Int, Int)], (Float,Float))
@@ -39,8 +38,8 @@ initial x = case x of
                                 [Black,Black,Black]],
                                 [(1,1),(2,1),(2,2),(2,3)],
                                 (2,2))
-                L -> (fromLists [[Black,Black,Orange],
-                                [Orange,Orange,Orange],
+                L -> (fromLists [[Black,Black,White],
+                                [White,White,White],
                                 [Black,Black,Black]],
                                 [(1,3),(2,1),(2,2),(2,3)],
                                 (2,2))
@@ -64,7 +63,6 @@ initial x = case x of
                                 [Black,Black,Black]],
                                 [(1,1),(1,2),(2,2),(2,3)],
                                 (2,2))
-                Empty -> (fromLists [[Black]], [(-1,-1)], (-1,-1))
 
 instance Random Piece where
     randomR (_,_) g = -- TODO: randomR completely broken

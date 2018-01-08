@@ -14,6 +14,7 @@ import           System.Random
 data Fail = RotationImpossible
           | DropImpossible
           | ShiftImpossible
+          | NothingDeleted
           | GameLost
           deriving (Eq, Show)
 
@@ -23,14 +24,25 @@ data Field = Field {
     , fieldPieceCoordinates :: [(Int, Int)]
     , fieldPieceCenterPoint :: (Float, Float)
     , fieldPoints           :: Integer
-    } deriving (Eq, Show)
+    } deriving (Eq)
 
-{-| Create a empty (all black) Field with 4 additional rows (b/c SRS)|-}
+instance Show Field where
+    show f = show m ++ "\n" ++ show c ++ "\n" ++ show e ++ "\n" ++ show p
+        where
+            m = fieldMatrix f
+            c = fieldPieceCoordinates f
+            e = fieldPieceCenterPoint f
+            p = fieldPoints f
+
+{-| Create a empty (all black) Field with 4 additional rows on top (b/c SRS)|-}
 -- TODO: Random probably broken
 createField :: Int -> Int -> IO Field
 createField x y = do
-    g <- getStdGen
-    return $ Field (matrix (x+4) y (\_ -> Black)) (S.iterate (const (fst (random g))) I) [(-1,-1)] (-1,-1) 0
+    g <- newStdGen
+    return $ Field (matrix (x+4) y (\_ -> Black)) (stream g) [(-1,-1)] (-1,-1) 0
+
+stream :: RandomGen g => g -> S.Stream Piece
+stream g = S.fromList $ randoms g
 
 {-| Create a field with predefined pieces. Only for testing -}
 emptyField :: Int -> Int -> Field
