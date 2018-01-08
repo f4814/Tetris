@@ -20,7 +20,8 @@ library
                      , matrix
                      , random
                      , Stream
-                     , hscurses
+                     , brick
+                     , vty
   ghc-options:         -Wall
   default-language:    Haskell2010
 
@@ -30,8 +31,6 @@ executable tetris
   ghc-options:         -threaded -with-rtsopts=-N -Wall
   build-depends:       base
                      , tetris
-                     , hscurses
-                     , monad-loops
   default-language:    Haskell2010
 
 test-suite tetris-test
