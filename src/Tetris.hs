@@ -12,27 +12,25 @@ module Tetris
     , shiftPieceLeft
     ) where
 
-import           Control.Monad.Loops
 import           Data.Matrix
-import qualified Data.Stream as S
 import           Tetris.Piece
 import           Tetris.Color
 import           Tetris.Field
 
 {-| Place next Piece on the field -}
 placePiece :: Field -> Either (Field, Fail) Field
-placePiece f = placePiece_ piece (Field (fieldMatrix f) (fieldPieceType f)
-                                        (fieldPieceCoordinates f) (fieldPieceCenterPoint f)
-                                        (fieldPoints f))
+placePiece f = placePiece_ piece (f { fieldPieceType = newType } )
     where
-        piece = S.head (fieldPieceType f)
+        newType = tail $ fieldPieceType f
+        piece = head newType
 
 {-| place a piece on the field. Only for testing purposes -}
 placePiece_ :: Piece -> Field -> Either (Field, Fail) Field
 placePiece_ p f =
     if isLost f
         then Left  $ (f, GameLost)
-        else Right $ Field (top <-> bottom) (fieldPieceType f) (snd3 i) (thr3 i) (fieldPoints f) -- FIXME: Record
+        else Right $ f { fieldMatrix = (top <-> bottom), fieldPieceCoordinates = (snd3 i),
+                             fieldPieceCenterPoint = (thr3 i) }
             where
                 i = initial p
                 old = fieldMatrix f
@@ -62,13 +60,12 @@ shiftPiece rf cf f = if any (==True) $ map check l
                 check (r,c) = safeGet (rf r) (cf c) (withoutPiece l m) /= Just Black -- Is shift possible
 
 {-| Redraw current Piece -}
--- TODO: Maybe use outside of shiftPiece
 redraw :: Field -> Field
 redraw f = f { fieldMatrix = newMat }
     where
         m = fieldMatrix f
         c = fieldPieceCoordinates f
-        newColor = color . S.head . fieldPieceType $ f
+        newColor = color . head . fieldPieceType $ f
         newMat = set newColor c m
 
 {-| Integer functions on Floats. Needed for the Center Point |-}
@@ -130,18 +127,17 @@ checkRows f = if length rows /= 0
 -- r2 = (c1 + pr - pc)
 -- c2 = (pr + pc - r1)
 {-| Rotate Piece couter-clockwise |-}
--- FIXME: Record
 rotatePieceCCW :: Field -> Either (Field, Fail) Field
 rotatePieceCCW f = if any (check . toInt . newCord) l
-                       then Left $ (Field m p l c (fieldPoints f), RotationImpossible)
-                       else Right $ Field (set (color . S.head $ p) coordinates w)
-                                          p coordinates c (fieldPoints f)
+                       then Left $ (f, RotationImpossible)
+                       else Right $ f { fieldMatrix = (set (color . head $ p) coordinates w),
+                                        fieldPieceCoordinates = coordinates }
     where m = fieldMatrix f -- Matrix
           p = fieldPieceType f -- Piece
           l = fieldPieceCoordinates f -- List
           c = fieldPieceCenterPoint f -- Center
           w = withoutPiece l m
-          coordinates = map (toInt . newCord) l
+          coordinates     = map (toInt . newCord) l
           newCord (rc,cc) = (fromIntegral cc + fst c - snd c, fst c + snd c - fromIntegral rc)
-          check (rm,cm) = safeGet rm cm w /= Just Black
-          toInt (x,y) = (round x, round y)
+          check (rm,cm)   = safeGet rm cm w /= Just Black
+          toInt (x,y)     = (round x, round y)

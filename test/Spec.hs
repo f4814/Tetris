@@ -16,7 +16,7 @@ instance Arbitrary Field where
         let field = shiftPiece ((+)
                                . fromInteger $ fromIntegral row_mod) ((+)
                                . fromInteger $ fromIntegral col_mod) $
-                        case placePiece piece (emptyField rows cols) of
+                        case placePiece_ piece (emptyField rows cols) of
                             Right x -> x
                             Left x  -> error "Couldn't create Field. This should not happen"
         return $ setFieldPoints points $ case field of
@@ -59,6 +59,8 @@ main = do
 
     putStr "Left / Right shifting:  "
     quickCheckWith stdArgs { maxSuccess = 500 } (reversableActionProp shiftPieceLeft shiftPieceRight)
+
+    -- TODO: Check error handling
 
     putStr "4x Rotation:            "
     quickCheckWith stdArgs { maxSuccess = 500 } (reversableActionProp (testRotation rotatePieceCCW) (testRotation rotatePieceCCW))

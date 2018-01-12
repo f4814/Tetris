@@ -12,7 +12,7 @@ import Data.Matrix
 import Tetris.Color
 
 data Piece = I | J | L | O | S | T | Z
-    deriving (Show, Eq) -- TODO: Delete Show
+    deriving (Eq)
 
 color :: Piece -> Color
 color x = case x of
@@ -64,8 +64,9 @@ initial x = case x of
                                 [(1,1),(1,2),(2,2),(2,3)],
                                 (2,2))
 
+-- RandomR is broken, but it works
 instance Random Piece where
-    randomR (_,_) g = -- TODO: randomR completely broken
+    randomR (_,_) g =
         case (fst rnd) `rem` 7 of
             0 -> (I, snd rnd)
             1 -> (J, snd rnd)

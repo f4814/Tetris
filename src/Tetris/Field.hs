@@ -8,7 +8,6 @@ module Tetris.Field
 import           Data.Matrix
 import           Tetris.Piece
 import           Tetris.Color
-import qualified Data.Stream as S
 import           System.Random
 
 data Fail = RotationImpossible
@@ -20,7 +19,7 @@ data Fail = RotationImpossible
 
 data Field = Field {
       fieldMatrix           :: Matrix Color
-    , fieldPieceType        :: S.Stream Piece
+    , fieldPieceType        :: [Piece]
     , fieldPieceCoordinates :: [(Int, Int)]
     , fieldPieceCenterPoint :: (Float, Float)
     , fieldPoints           :: Integer
@@ -35,15 +34,14 @@ instance Show Field where
             p = fieldPoints f
 
 {-| Create a empty (all black) Field with 4 additional rows on top (b/c SRS)|-}
--- TODO: Random probably broken
 createField :: Int -> Int -> IO Field
 createField x y = do
     g <- newStdGen
     return $ Field (matrix (x+4) y (\_ -> Black)) (stream g) [(-1,-1)] (-1,-1) 0
 
-stream :: RandomGen g => g -> S.Stream Piece
-stream g = S.fromList $ randoms g
+stream :: RandomGen g => g -> [Piece]
+stream g = randoms g
 
 {-| Create a field with predefined pieces. Only for testing -}
 emptyField :: Int -> Int -> Field
-emptyField x y = Field (matrix (x+4) y (\_ -> Black)) (S.cycle [I,J,L,O,S,T,Z]) [(-1,-1)] (-1,-1) 0
+emptyField x y = Field (matrix (x+4) y (\_ -> Black)) (cycle [I,J,L,O,S,T,Z]) [(-1,-1)] (-1,-1) 0

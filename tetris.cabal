@@ -19,7 +19,6 @@ library
   build-depends:       base >= 4.7 && < 5
                      , matrix
                      , random
-                     , Stream
                      , brick
                      , vty
   ghc-options:         -Wall

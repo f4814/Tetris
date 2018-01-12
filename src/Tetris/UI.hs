@@ -84,7 +84,7 @@ main r c = do
     start      <- createField r c
     tick       <- BC.newBChan 10
     tickThread <- forkIO $ forever $ do
-        threadDelay 1000000
+        threadDelay 500000
         BC.writeBChan tick Tick
     _ <- customMain (V.mkVty V.defaultConfig) (Just tick) app (begin start)
     killThread tickThread
