@@ -113,7 +113,7 @@ dropPiece f = do
 -}
 checkRows :: Field -> Either (Field, Fail) Field
 checkRows f = if length rows /= 0
-                  then Right $ f { fieldMatrix = deleteRows rows m }
+                  then Right $ f { fieldMatrix = deleteRows rows m, fieldPoints = (fieldPoints f) + fromIntegral (length rows * 100) }
                   else Left $ (f, NothingDeleted)
     where
         m                     = fieldMatrix f
