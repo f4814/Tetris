@@ -11,6 +11,8 @@ import qualified Graphics.Vty               as V
 import           Data.Matrix
 import           Tetris
 import           Tetris.Field
+import           Tetris.Piece
+import           Tetris.Color
 
 data Tick = Tick
 data Name = Name deriving (Eq, Ord)
@@ -32,18 +34,18 @@ theMap = attrMap V.defAttr
     , (attrName "Magenta", V.magenta `on` V.magenta)
     , (attrName "Cyan", V.cyan `on` V.cyan)
     , (attrName "Green", V.green `on` V.green)
-    , (attrName "Black", V.black `on` V.black)
     ]
 
 drawUI :: Field -> [Widget Name]
-drawUI f = [ C.center $ drawField f ]
+drawUI f = [ C.center $ drawField f <+>
+                        padRight (Pad 2) (drawNext f <=> padBottom (Pad 2) (drawPoints f)) ]
 
 drawField :: Field -> Widget Name
 drawField f = withBorderStyle BS.unicodeBold
     $ B.borderWithLabel (str "TETRIS")
     $ vBox row
     where
-        fieldMat   = fieldMatrix f
+        fieldMat  = fieldMatrix f
         cutMatrix = submatrix 4 rows 1 cols $ fieldMat
         rows      = nrows $ fieldMatrix f
         cols      = ncols $ fieldMatrix f
@@ -51,6 +53,27 @@ drawField f = withBorderStyle BS.unicodeBold
         cells r   = [ draw r x | x  <- [1..cols] ]
         draw r c  = withAttr (attrName . show $ getElem r c cutMatrix) block
         block     = str "  "
+
+drawPoints :: Field -> Widget Name
+drawPoints f = hLimit 11
+    $ withBorderStyle BS.unicodeBold
+    $ B.borderWithLabel (str "Points")
+    $ C.hCenter $ padAll 1 $ str . show $ fieldPoints f
+
+drawNext :: Field -> Widget Name
+drawNext f = hLimit 11 $ vLimit 5
+    $ withBorderStyle BS.unicodeBold
+    $ B.borderWithLabel (str "Next")
+    $ C.center
+    $ vBox rows
+    where
+        piece       = fieldPieceType f !! 1
+        pieceMatrix = fst3 $ initial piece
+        allBlack r  = all (== Black) (getRow r pieceMatrix)
+        rows        = [ hBox $ cells x | x <- [1..nrows pieceMatrix], not (allBlack x) ]
+        cells r     = [ draw r x | x <- [1..ncols pieceMatrix] ]
+        draw r c    = withAttr (attrName . show $ getElem r c pieceMatrix) block
+        block       = str "  "
 
 handleEvent :: Field -> BrickEvent Name Tick -> EventM Name (Next Field)
 handleEvent f (AppEvent Tick)                       = critical $ shiftPieceDown f
