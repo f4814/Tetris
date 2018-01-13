@@ -5,5 +5,5 @@ import           System.Environment
 
 main :: IO ()
 main = do
-    args <- getArgs
-    UI.main (read $ args !! 0) (read $ args !! 1)
+    r : c : [] <- map read <$> getArgs
+    UI.main r c

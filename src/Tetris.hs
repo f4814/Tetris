@@ -17,6 +17,9 @@ import           Tetris.Piece
 import           Tetris.Color
 import           Tetris.Field
 
+{-| Stuff for rows and columns -}
+data RowsCols a = RowsCols { _rows :: a, _cols :: a }
+
 {-| Place next Piece on the field -}
 placePiece :: Field -> Either (Field, Fail) Field
 placePiece f = placePiece_ piece (f { fieldPieceType = newType } )
@@ -44,15 +47,16 @@ isLost f = any (/= Black) row
           mat = fieldMatrix f
 
 {-| Higher order shift function |-}
-shiftPiece :: (Int -> Int) -> (Int -> Int) -> Field -> Either (Field, Fail) Field
-shiftPiece rf cf f = if any (==True) $ map check l
-                         then let err = if (rf 0) > 0 then DropImpossible else ShiftImpossible
-                               in Left (f, err)
-                         else Right $ redraw (Field (withoutPiece l m)
-                                                    (fieldPieceType f)
-                                                    newL
-                                                    (float rf . fst $ center, float cf . snd $ center)
-                                                    (fieldPoints f))
+shiftPiece :: RowsCols (Int -> Int) -> Field -> Either (Field, Fail) Field
+shiftPiece (RowsCols {_rows=rf, _cols=cf}) f =
+    if any (==True) $ map check l
+        then let err = if (rf 0) > 0 then DropImpossible else ShiftImpossible
+              in Left (f, err)
+    else Right $ redraw (Field (withoutPiece l m)
+                        (fieldPieceType f)
+                        newL
+                        (float rf . fst $ center, float cf . snd $ center)
+                        (fieldPoints f))
           where m = fieldMatrix f  -- Matrix
                 l = fieldPieceCoordinates f -- List
                 center = fieldPieceCenterPoint f
@@ -85,19 +89,19 @@ set e (y:ys) m = set e ys (setElem e y m)
 
 {-| Shift piece down |-}
 shiftPieceDown :: Field -> Either (Field, Fail) Field
-shiftPieceDown = shiftPiece (+1) id
+shiftPieceDown = shiftPiece (RowsCols {_rows = (+1), _cols = id})
 
 {-| Shift piece left |-}
 shiftPieceLeft :: Field -> Either (Field, Fail) Field
-shiftPieceLeft = shiftPiece id (subtract 1)
+shiftPieceLeft = shiftPiece (RowsCols {_rows = id, _cols = (subtract 1) })
 
 {-| Shift piece right |-}
 shiftPieceRight :: Field -> Either (Field, Fail) Field
-shiftPieceRight = shiftPiece id (+1)
+shiftPieceRight = shiftPiece (RowsCols { _rows = id, _cols = (+1) })
 
 {-| Shift piece upwards. Only for testing purposes |-}
 shiftPieceUp :: Field -> Either (Field, Fail) Field
-shiftPieceUp = shiftPiece (subtract 1) id
+shiftPieceUp = shiftPiece (RowsCols { _rows = (subtract 1), _cols = id })
 
 {-| Drop Piece to bottom |-}
 dropPiece :: Field -> Either (Field, Fail) Field
