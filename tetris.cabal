@@ -1,6 +1,6 @@
 name:                tetris
 version:             0.1.0.0
-license:             BSD3
+license:             MIT
 license-file:        LICENSE
 author:              f4814n
 category:            Terminal
